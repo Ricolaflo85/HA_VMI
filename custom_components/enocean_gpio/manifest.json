@@ -1,0 +1,10 @@
+{
+  "domain": "enocean_gpio",
+  "name": "EnOcean GPIO",
+  "version": "1.0.0",
+  "documentation": "https://github.com/Ricolaflo85/HA_VMI",
+  "requirements": ["pyserial>=3.0", "enocean>=1.0.0"],
+  "dependencies": [],
+  "codeowners": [],
+  "iot_class": "local_polling"
+}
