@@ -13,6 +13,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 
 from .const import ALL_EEP_PROFILES, DOMAIN, SIGNAL_ENOCEAN_EVENT
+from .eeps import parse_profile_payload
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -149,17 +150,7 @@ class EnOceanHub:
 
     def _parse_eep(self, payload: bytes, profile_key: tuple[str, str, str]) -> dict[str, Any]:
         rorg, func, typ = profile_key
-        if profile_key == ("a5", "09", "04"):
-            return self._parse_a5_09_04(payload)
-        if profile_key == ("a5", "04", "01"):
-            return self._parse_a5_04_01(payload)
-        if profile_key == ("d2", "01", "12"):
-            return self._parse_d2_01_12(payload)
-        if profile_key == ("d1079", "00", "00"):
-            return self._parse_d1079_00_00(payload)
-        if profile_key == ("d1079", "01", "00"):
-            return self._parse_d1079_01_00(payload)
-        return {}
+        return parse_profile_payload(profile_key, payload)
 
     def _parse_a5_09_04(self, payload: bytes) -> dict[str, Any]:
         if len(payload) < 3:
