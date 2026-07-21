@@ -16,6 +16,8 @@ def parse_profile_payload(profile_key: tuple[str, str, str], payload: bytes) -> 
         return _parse_d2_01_12(payload)
     if profile_key == ("d5", "00", "01"):
         return _parse_d5_00_01(payload)
+    if profile_key == ("d106d", "00", "00"):
+        return _parse_d106d_00_00(payload)
     if profile_key == ("d1079", "00", "00"):
         return _parse_d1079_00_00(payload)
     if profile_key == ("d1079", "01", "00"):
@@ -63,15 +65,47 @@ def _parse_d5_00_01(payload: bytes) -> dict[str, Any]:
     return {"CO": contact_open}
 
 
-def _parse_d1079_00_00(payload: bytes) -> dict[str, Any]:
-    if len(payload) < 5:
+def _get_bits(payload: bytes, start_bit: int, length: int) -> int:
+    if len(payload) * 8 < start_bit + length:
+        return 0
+    value = int.from_bytes(payload, byteorder="big")
+    total_bits = len(payload) * 8
+    shift = total_bits - (start_bit + length)
+    return (value >> shift) & ((1 << length) - 1)
+
+
+def _parse_d106d_00_00(payload: bytes) -> dict[str, Any]:
+    if len(payload) < 6:
         return {}
-    cmd = payload[0] >> 4
+    cmd = payload[2]
+    if cmd not in (2, 3):
+        return {}
+
+    result = {
+        "CMD": cmd,
+        "IAQ_GLOBAL": _get_bits(payload, 24, 3),
+        "IAQ_SOURCE": _get_bits(payload, 27, 4),
+        "IAQ_DRY": _get_bits(payload, 31, 3),
+        "IAQ_MOULD": _get_bits(payload, 34, 3),
+        "IAQ_DM": _get_bits(payload, 37, 3),
+        "HCI": _get_bits(payload, 40, 2),
+    }
+
+    if cmd == 3:
+        result["IAQ_CO2"] = _get_bits(payload, 42, 3)
+
+    return result
+
+
+def _parse_d1079_00_00(payload: bytes) -> dict[str, Any]:
+    if len(payload) < 6:
+        return {}
+    cmd = payload[1] & 0x0F
     if cmd not in (1, 3):
         return {}
-    batt = payload[1]
-    temp_raw = int.from_bytes(payload[2:4], byteorder="big")
-    hum_raw = payload[4]
+    batt = payload[2]
+    temp_raw = int.from_bytes(payload[3:5], byteorder="big")
+    hum_raw = payload[5]
     temperature = round((temp_raw / 16500.0) * 165.0 / 100.0, 1)
     humidity = hum_raw
     return {"TEMP": temperature, "HUM": humidity, "BATT": batt}

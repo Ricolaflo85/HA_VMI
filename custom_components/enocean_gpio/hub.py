@@ -135,9 +135,16 @@ class EnOceanHub:
             func = f"{data[1]:02x}" if len(data) > 1 else ""
             typ = f"{data[2]:02x}" if len(data) > 2 else ""
         profile_key = (f"{rorg:02x}", func, typ)
+        # If exact profile not found, try to match manufacturer-specific
+        # profiles that start with the rorg hex (e.g. 'd1079' starts with 'd1').
         if profile_key not in ALL_EEP_PROFILES:
-            return None
-        payload = self._parse_eep(payload=data, profile_key=profile_key)
+            for key in ALL_EEP_PROFILES.keys():
+                if key[1] == func and key[2] == typ and key[0].startswith(f"{rorg:02x}"):
+                    profile_key = key
+                    break
+            else:
+                return None
+        payload = self._parse_eep(payload=data[1:], profile_key=profile_key)
         if not payload:
             return None
         return {

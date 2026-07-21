@@ -51,6 +51,20 @@ ALL_EEP_PROFILES = {
             "BATT": {"name": "Batterie assistant", "type": "sensor"},
         },
     },
+    # Air quality sensor (manufacturer-specific MSC D106D)
+    ("d106d", "00", "00"): {
+        "name": "IAQ Sensor",
+        "entities": {
+            "CMD": {"name": "Command", "type": "sensor"},
+            "IAQ_GLOBAL": {"name": "Indoor air quality", "type": "sensor"},
+            "IAQ_SOURCE": {"name": "IAQ source", "type": "sensor"},
+            "IAQ_DRY": {"name": "IAQ dryness", "type": "sensor"},
+            "IAQ_MOULD": {"name": "IAQ mould", "type": "sensor"},
+            "IAQ_DM": {"name": "IAQ dryness-mould index", "type": "sensor"},
+            "HCI": {"name": "Comfort index", "type": "sensor"},
+            "IAQ_CO2": {"name": "IAQ CO2", "type": "sensor"},
+        },
+    },
     # CO2 sensor
     ("a5", "09", "04"): {
         "name": "CO2 Sensor",
