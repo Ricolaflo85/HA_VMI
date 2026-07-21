@@ -8,7 +8,6 @@ from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 
-from . import async_get_hub
 from .const import ALL_EEP_PROFILES, DOMAIN, SIGNAL_ENOCEAN_EVENT
 
 _LOGGER = logging.getLogger(__name__)
@@ -35,7 +34,7 @@ async def async_setup_platform(hass: HomeAssistant, config: dict, async_add_enti
             unique_id = f"{device_id}_{profile_key[0]}_{profile_key[1]}_{profile_key[2]}_{field}"
             if unique_id in entities:
                 entities[unique_id]._set_state(bool(payload[field]))
-                return
+                continue
 
             entity = EnOceanBinarySensor(device_id, device_name, profile_key, field, entity_def)
             entity._set_state(bool(payload[field]))
@@ -55,6 +54,7 @@ class EnOceanBinarySensor(BinarySensorEntity):
         self._attr_name = f"{device_name} {definition['name']}"
         self._attr_is_on = False
         self._attr_unique_id = f"{device_id}_{profile_key[0]}_{profile_key[1]}_{profile_key[2]}_{field}"
+        self._attr_device_class = definition.get("device_class")
         self._attr_extra_state_attributes = {
             "device_id": device_id,
             "profile": profile_key,

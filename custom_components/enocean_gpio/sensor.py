@@ -8,7 +8,6 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 
-from . import async_get_hub
 from .const import ALL_EEP_PROFILES, DOMAIN, SIGNAL_ENOCEAN_EVENT
 
 _LOGGER = logging.getLogger(__name__)
@@ -35,7 +34,7 @@ async def async_setup_platform(hass: HomeAssistant, config: dict, async_add_enti
             unique_id = f"{device_id}_{profile_key[0]}_{profile_key[1]}_{profile_key[2]}_{field}"
             if unique_id in entities:
                 entities[unique_id]._set_value(payload[field])
-                return
+                continue
 
             entity = EnOceanSensor(device_id, device_name, profile_key, field, entity_def)
             entity._set_value(payload[field])
