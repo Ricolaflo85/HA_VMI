@@ -9,13 +9,6 @@ SIGNAL_ENOCEAN_EVENT = "enocean_gpio_event"
 
 # Device profiles keyed by (rorg, func, type) or manufacturer-specific EEP
 ALL_EEP_PROFILES = {
-    # Door detector profile D5-00-01 used for opening contacts
-    ("d5", "00", "01"): {
-        "name": "Door contact",
-        "entities": {
-            "CO": {"name": "Contact", "type": "binary_sensor", "device_class": "door"},
-        },
-    },
     # VMI purevent / Ventilairsec VMI
     ("d1079", "01", "00"): {
         "name": "VMI Ventilairsec",

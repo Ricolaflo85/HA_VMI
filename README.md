@@ -31,7 +31,6 @@ enocean_gpio:
    - `a5 09 04` : CO2 Sensor
    - `a5 04 01` : Temperature Humidite Sensor
    - `d2 01 12` : Bypass Switch
-   - `d5 00 01` : Door contact
 3. Les entités sont créées dynamiquement à partir des données reçues.
 4. Une fois créées, les entités sont visibles dans le tableau de bord et peuvent être historisées si le `recorder` de Home Assistant est activé.
 

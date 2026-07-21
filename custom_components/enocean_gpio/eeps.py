@@ -14,8 +14,6 @@ def parse_profile_payload(profile_key: tuple[str, str, str], payload: bytes) -> 
         return _parse_a5_04_01(payload)
     if profile_key == ("d2", "01", "12"):
         return _parse_d2_01_12(payload)
-    if profile_key == ("d5", "00", "01"):
-        return _parse_d5_00_01(payload)
     if profile_key == ("d106d", "00", "00"):
         return _parse_d106d_00_00(payload)
     if profile_key == ("d1079", "00", "00"):
