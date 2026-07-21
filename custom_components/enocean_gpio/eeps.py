@@ -106,7 +106,7 @@ def _parse_d1079_00_00(payload: bytes) -> dict[str, Any]:
     batt = payload[2]
     temp_raw = int.from_bytes(payload[3:5], byteorder="big")
     hum_raw = payload[5]
-    temperature = round((temp_raw / 16500.0) * 165.0 / 100.0, 1)
+    temperature = round(temp_raw / 272.0, 1)
     humidity = hum_raw
     return {"TEMP": temperature, "HUM": humidity, "BATT": batt}
 
