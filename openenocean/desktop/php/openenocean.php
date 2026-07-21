@@ -29,11 +29,11 @@ uasort($actuators, 'sortByOption');
 
 <div class="row row-overflow">
 	<div class="col-lg-12 eqLogicThumbnailDisplay">
-		<legend><i class="fas fa-cog"></i>  {{Gestion}}</legend>
+		<legend><i class="fas fa-cog"></i> {{Gestion}}</legend>
 		<div class="eqLogicThumbnailContainer">
 			<div class="cursor eqLogicAction logoPrimary" data-action="add">
 				<i class="fas fa-plus-circle"></i>
-				<br/>
+				<br />
 				<span>{{Ajouter}}</span>
 			</div>
 			<?php
@@ -64,29 +64,29 @@ uasort($actuators, 'sortByOption');
 				echo '</div>';
 			}
 			?>
-			<div class="cursor eqLogicAction logoSecondary" data-action="gotoPluginConf" >
+			<div class="cursor eqLogicAction logoSecondary" data-action="gotoPluginConf">
 				<i class="fas fa-wrench"></i>
-				<br/>
+				<br />
 				<span>{{Configuration}}</span>
 			</div>
 			<div class="cursor logoSecondary" id="bt_healthopenenocean">
 				<i class="fas fa-medkit"></i>
-				<br/>
+				<br />
 				<span>{{Santé}}</span>
 			</div>
 		</div>
-		<legend><i class="fas fa-table"></i>  {{Mes équipements EnOcean}}</legend>
+		<legend><i class="fas fa-table"></i> {{Mes équipements EnOcean}}</legend>
 		<div class="input-group" style="margin:5px;">
-		<input class="form-control" placeholder="{{Rechercher}}" id="in_searchEqlogic"/>
-		<div class="input-group-btn">
-			<a id="bt_resetSearch" class="btn roundedRight" style="width:30px"><i class="fas fa-times"></i></a>
+			<input class="form-control" placeholder="{{Rechercher}}" id="in_searchEqlogic" />
+			<div class="input-group-btn">
+				<a id="bt_resetSearch" class="btn roundedRight" style="width:30px"><i class="fas fa-times"></i></a>
+			</div>
 		</div>
-	</div>
 		<div class="eqLogicThumbnailContainer">
 			<?php
 			foreach ($eqLogics as $eqLogic) {
 				$opacity = ($eqLogic->getIsEnable()) ? '' : 'disableCard';
-				echo '<div class="eqLogicDisplayCard cursor '.$opacity.'" data-eqLogic_id="' . $eqLogic->getId() . '">';
+				echo '<div class="eqLogicDisplayCard cursor ' . $opacity . '" data-eqLogic_id="' . $eqLogic->getId() . '">';
 				$alternateImg = $eqLogic->getConfiguration('iconModel');
 				if (file_exists(dirname(__FILE__) . '/../../core/config/devices/' . $alternateImg . '.jpg')) {
 					echo '<img class="lazy" src="plugins/openenocean/core/config/devices/' . $alternateImg . '.jpg"/>';
@@ -102,7 +102,7 @@ uasort($actuators, 'sortByOption');
 			?>
 		</div>
 	</div>
-	
+
 	<div class="col-lg-12 eqLogic" style="display: none;">
 		<div class="input-group pull-right" style="display:inline-flex">
 			<span class="input-group-btn">
@@ -116,7 +116,7 @@ uasort($actuators, 'sortByOption');
 		</ul>
 		<div class="tab-content" style="height:calc(100% - 50px);overflow:auto;overflow-x: hidden;">
 			<div role="tabpanel" class="tab-pane active" id="eqlogictab">
-				<br/>
+				<br />
 				<div class="row">
 					<div class="col-sm-7">
 						<form class="form-horizontal">
@@ -126,17 +126,17 @@ uasort($actuators, 'sortByOption');
 									<div class="col-sm-7">
 										<input type="text" class="eqLogicAttr form-control" data-l1key="id" style="display : none;" />
 										<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="lastRepeat" style="display : none;" />
-										<input type="text" class="eqLogicAttr form-control" data-l1key="name" placeholder="Nom de l'équipement EnOcean"/>
+										<input type="text" class="eqLogicAttr form-control" data-l1key="name" placeholder="Nom de l'équipement EnOcean" />
 									</div>
 								</div>
 								<div class="form-group">
 									<label class="col-sm-3 control-label">{{ID}}</label>
 									<div class="col-sm-7">
-										<input type="text" class="eqLogicAttr form-control" data-l1key="logicalId" placeholder="Logical ID"/>
+										<input type="text" class="eqLogicAttr form-control" data-l1key="logicalId" placeholder="Logical ID" />
 									</div>
 									<label class="col-sm-2 control-label action-id" style="display:none;">{{ID émission}}</label>
 									<div class="col-sm-7 action-id" style="display:none;">
-										<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="actionid" placeholder="ID émission"/>
+										<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="actionid" placeholder="ID émission" />
 									</div>
 								</div>
 								<div class="form-group">
@@ -148,8 +148,8 @@ uasort($actuators, 'sortByOption');
 								<div class="form-group">
 									<label class="col-sm-3 control-label"></label>
 									<div class="col-sm-7">
-										<label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="isEnable" checked/>{{Activer}}</label>
-										<label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="isVisible" checked/>{{Visible}}</label>
+										<label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="isEnable" checked />{{Activer}}</label>
+										<label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="isVisible" checked />{{Visible}}</label>
 									</div>
 								</div>
 								<div class="form-group">
@@ -160,7 +160,7 @@ uasort($actuators, 'sortByOption');
 											<?php
 											$options = '';
 											foreach ((jeeObject::buildTree(null, false)) as $object) {
-											$options .= '<option value="' . $object->getId() . '">' . str_repeat('&nbsp;&nbsp;', $object->getConfiguration('parentNumber')) . $object->getName() . '</option>';
+												$options .= '<option value="' . $object->getId() . '">' . str_repeat('&nbsp;&nbsp;', $object->getConfiguration('parentNumber')) . $object->getName() . '</option>';
 											}
 											echo $options;
 											?>
@@ -177,7 +177,7 @@ uasort($actuators, 'sortByOption');
 											echo '</label>';
 										}
 										?>
-										
+
 									</div>
 								</div>
 							</fieldset>
@@ -189,10 +189,10 @@ uasort($actuators, 'sortByOption');
 								<div class="form-group">
 									<label class="col-sm-2 control-label"></label>
 									<div class="col-sm-8">
-										<a class="btn btn-danger" id="bt_autoDetectModule"><i class="fas fa-search" title="{{Recréer les commandes}}"></i>  {{Recréer les commandes}}</a>
-										<a class="btn btn-primary paramDevice" id="bt_configureDevice" style="display:none"><i class="fas fa-wrench"></i>  {{Configuration}}</a>
-										<a class="btn btn-primary repeatDevice" id="bt_configureRepeat" style="display:none"><i class="fa fa-rss"></i>  {{Répéteur}}</a>
-										<a class="btn btn-warning remcom" id="bt_configureRemcom" style="display:none"><i class="fa fa-qrcode"></i>  {{Remote Management}}</a>
+										<a class="btn btn-danger" id="bt_autoDetectModule"><i class="fas fa-search" title="{{Recréer les commandes}}"></i> {{Recréer les commandes}}</a>
+										<a class="btn btn-primary paramDevice" id="bt_configureDevice" style="display:none"><i class="fas fa-wrench"></i> {{Configuration}}</a>
+										<a class="btn btn-primary repeatDevice" id="bt_configureRepeat" style="display:none"><i class="fa fa-rss"></i> {{Répéteur}}</a>
+										<a class="btn btn-warning remcom" id="bt_configureRemcom" style="display:none"><i class="fa fa-qrcode"></i> {{Remote Management}}</a>
 									</div>
 								</div>
 								<div class="form-group">
@@ -202,7 +202,7 @@ uasort($actuators, 'sortByOption');
 											<option value="">Aucun</option>
 											<?php
 											$groups = array();
-											
+
 											foreach (openenocean::devicesParameters() as $key => $info) {
 												if (isset($info['groupe'])) {
 													$info['key'] = $key;
@@ -240,15 +240,15 @@ uasort($actuators, 'sortByOption');
 								<div class="form-group">
 									<label class="col-sm-2 control-label">{{Rorg}}</label>
 									<div class="col-sm-2">
-										<input class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="rorg" >
+										<input class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="rorg">
 									</div>
 									<label class="col-sm-1 control-label">{{Func}}</label>
 									<div class="col-sm-2">
-										<input class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="func" >
+										<input class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="func">
 									</div>
 									<label class="col-sm-1 control-label">{{Type}}</label>
 									<div class="col-sm-2">
-										<input class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="type" >
+										<input class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="type">
 									</div>
 								</div>
 								<div class="form-group">
@@ -262,12 +262,12 @@ uasort($actuators, 'sortByOption');
 									</div>
 								</div>
 								<center>
-									<img src="core/img/no_image.gif" data-original=".jpg" id="img_device" class="img-responsive" style="max-height : 250px;"  onerror="this.src='plugins/openenocean/plugin_info/openenocean_icon.png'"/>
+									<img src="core/img/no_image.gif" data-original=".jpg" id="img_device" class="img-responsive" style="max-height : 250px;" onerror="this.src='plugins/openenocean/plugin_info/openenocean_icon.png'" />
 								</center>
 								<div class="form-group sourceTemp">
 									<label class="col-sm-3 control-label">{{Température Source}}</label>
 									<div class="input-group col-sm-9">
-										<input type="text" class="eqLogicAttr form-control tooltips roundedLeft" data-l1key="configuration" data-l2key="sourceTemp" data-concat="1"/>
+										<input type="text" class="eqLogicAttr form-control tooltips roundedLeft" data-l1key="configuration" data-l2key="sourceTemp" data-concat="1" />
 										<span class="input-group-btn">
 											<a class="btn btn-default listCmdInfo roundedRight"><i class="fas fa-list-alt"></i></a>
 										</span>
@@ -275,35 +275,35 @@ uasort($actuators, 'sortByOption');
 								</div>
 							</fieldset>
 						</form>
-					</br>
-					<div class="alert alert-info globalRemark" style="display:none"></div>
+						</br>
+						<div class="alert alert-info globalRemark" style="display:none"></div>
+					</div>
 				</div>
 			</div>
+			<div role="tabpanel" class="tab-pane" id="commandtab">
+
+				<a class="btn btn-success btn-sm cmdAction pull-right" data-action="add" style="margin-top:5px;"><i class="fas fa-plus-circle"></i> {{Ajouter une commande}}</a><br /><br />
+				<table id="table_cmd" class="table table-bordered table-condensed">
+					<thead>
+						<tr>
+							<th style="width: 300px;">{{Nom}}</th>
+							<th style="width: 130px;">{{Type}}</th>
+							<th>{{Logical ID}}</th>
+							<th>{{Paramètres}}</th>
+							<th style="width: 300px;">{{Options}}</th>
+							<th style="width: 150px;"></th>
+						</tr>
+					</thead>
+					<tbody>
+
+					</tbody>
+				</table>
+
+			</div>
 		</div>
-		<div role="tabpanel" class="tab-pane" id="commandtab">
-			
-			<a class="btn btn-success btn-sm cmdAction pull-right" data-action="add" style="margin-top:5px;"><i class="fas fa-plus-circle"></i> {{Ajouter une commande}}</a><br/><br/>
-			<table id="table_cmd" class="table table-bordered table-condensed">
-				<thead>
-					<tr>
-						<th style="width: 300px;">{{Nom}}</th>
-						<th style="width: 130px;">{{Type}}</th>
-						<th>{{Logical ID}}</th>
-						<th>{{Paramètres}}</th>
-						<th style="width: 300px;">{{Options}}</th>
-						<th style="width: 150px;"></th>
-					</tr>
-				</thead>
-				<tbody>
-					
-				</tbody>
-			</table>
-			
-		</div>
+
 	</div>
-	
-</div>
 </div>
 
-<?php include_file('desktop', 'openenocean', 'js', 'openenocean');?>
-<?php include_file('core', 'plugin.template', 'js');?>
+<?php include_file('desktop', 'openenocean', 'js', 'openenocean'); ?>
+<?php include_file('core', 'plugin.template', 'js'); ?>

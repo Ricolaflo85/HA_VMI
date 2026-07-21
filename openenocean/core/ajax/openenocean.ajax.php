@@ -27,48 +27,53 @@ try {
 	ajax::init();
 
 	if (init('action') == 'changeIncludeState') {
-		openenocean::changeIncludeState(init('state'), init('mode'),init('type'));
+		openenocean::changeIncludeState(init('state'), init('mode'), init('type'));
 		ajax::success();
 	}
 
 	if (init('action') == 'getModelListParam') {
+		/** @var openenocean */
 		$openenocean = openenocean::byId(init('id'));
 		if (!is_object($openenocean)) {
 			ajax::success(array());
 		}
 		ajax::success($openenocean->getModelListParam(init('conf')));
 	}
-	
+
 	if (init('action') == 'setDeviceConfiguration') {
+		/** @var openenocean */
 		$openenocean = openenocean::byId(init('id'));
 		if (!is_object($openenocean)) {
 			ajax::success(array());
 		}
 		ajax::success($openenocean->setDeviceConfiguration(init('parameters')));
 	}
-	
+
 	if (init('action') == 'getDeviceConfiguration') {
+		/** @var openenocean */
 		$openenocean = openenocean::byId(init('id'));
 		if (!is_object($openenocean)) {
 			ajax::success(array());
 		}
 		ajax::success($openenocean->getDeviceConfiguration());
 	}
-	
+
 	if (init('action') == 'changeRepeater') {
+		/** @var openenocean */
 		$openenocean = openenocean::byId(init('id'));
 		if (!is_object($openenocean)) {
 			ajax::success(array());
 		}
 		ajax::success($openenocean->changeRepeater(init('type')));
 	}
-	
+
 	if (init('action') == 'autoDetectModule') {
+		/** @var openenocean */
 		$eqLogic = openenocean::byId(init('id'));
 		if (!is_object($eqLogic)) {
 			throw new Exception(__('Enocean eqLogic non trouvé : ', __FILE__) . init('id'));
 		}
-		if (init('createcommand') == 1){
+		if (init('createcommand') == 1) {
 			foreach ($eqLogic->getCmd() as $cmd) {
 				$cmd->remove();
 			}
@@ -76,19 +81,21 @@ try {
 		$eqLogic->applyModuleConfiguration();
 		ajax::success();
 	}
-	
+
 	if (init('action') == 'changeLogLive') {
 		ajax::success(openenocean::changeLogLive(init('level')));
 	}
-	
+
 	if (init('action') == 'remMan') {
+		/** @var openenocean */
 		$openenocean = openenocean::byId(init('id'));
 		if (!is_object($openenocean)) {
 			ajax::success(array());
 		}
-		ajax::success($openenocean->remMan(init('code'),init('type')));
+		ajax::success($openenocean->remMan(init('code'), init('type')));
 	}
 	if (init('action') == 'remCom') {
+		/** @var openenocean */
 		$openenocean = openenocean::byId(init('id'));
 		if (!is_object($openenocean)) {
 			ajax::success(array());
@@ -99,6 +106,5 @@ try {
 	throw new Exception('Aucune methode correspondante');
 	/*     * *********Catch exeption*************** */
 } catch (Exception $e) {
-	ajax::error(displayExeption($e), $e->getCode());
+	ajax::error(displayException($e), $e->getCode());
 }
-?>

@@ -443,7 +443,7 @@ class UTETeachIn(RadioPacket):
         if not self.__communicator.teach_in:
             logging.info('Communicator not set to teach-in mode, not sending UTE teach-in response.')
             return
-        if globals.COMMUNICATOR.base_id[0:3] == self.sender[0:3]:
+        if globals.DEVICE != 'aruba' and globals.COMMUNICATOR.base_id[0:3] == self.sender[0:3]:
             logging.info('Not responding to echo UTE')
             return
         if globals.LEARN_MODE == False and globals.EXCLUDE_MODE == False:

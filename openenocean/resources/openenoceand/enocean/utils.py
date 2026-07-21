@@ -49,7 +49,7 @@ def from_bitarray(data):
 
 def from_bitarray_split(data):
     ''' Convert bit array back to list of integer '''
-    chunks = [data[x:x+8] for x in xrange(0, len(data), 8)]
+    chunks = [data[x:x+8] for x in range(0, len(data), 8)]
     list=[]
     for chunk in chunks:
         list.append(int(''.join(['1' if x else '0' for x in chunk]), 2))

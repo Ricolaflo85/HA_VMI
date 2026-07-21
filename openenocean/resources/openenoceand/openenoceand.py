@@ -14,34 +14,21 @@
 # along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
 import globals
 import logging
-import string
 import sys
 import os
 import time
-import datetime
-import binascii
 import argparse
-import re
 import threading
 import signal
 import traceback
-from optparse import OptionParser
-from os.path import join
 import json
+import queue
 
-try:
-    from jeedom.jeedom import *
-except ImportError:
-    print("Error: importing module from jeedom folder")
-    sys.exit(1)
+from jeedom.jeedom import jeedom_socket, jeedom_utils, jeedom_com, JEEDOM_SOCKET_MESSAGE
 
-try:
-    import queue
-except ImportError:
-    import Queue as queue
-
-################################PARAMETERS######################################
+# PARAMETERS
 communicator = None
+
 
 def listen():
     jeedom_socket.open()
@@ -55,23 +42,24 @@ def listen():
         logging.error("No base id from enocean key, shutdown")
         shutdown()
 
-    logging.info('The Base ID of your controler is %s.' % enocean.utils.to_hex_string(globals.COMMUNICATOR.base_id).replace(':',''))
-    globals.JEEDOM_COM.send_change_immediate({'baseid' : str(enocean.utils.to_hex_string(globals.COMMUNICATOR.base_id)).replace(':','')});
+    logging.info('The Base ID of your controler is %s.', enocean.utils.to_hex_string(globals.COMMUNICATOR.base_id).replace(':', ''))
+    globals.JEEDOM_COM.send_change_immediate({'baseid': str(enocean.utils.to_hex_string(globals.COMMUNICATOR.base_id)).replace(':', '')})
     globals.WAITING_RES = False
     packet = Packet(PACKET.COMMON_COMMAND, [0x03])
     globals.COMMUNICATOR.send(packet)
     globals.WAITING_RES = False
     try:
-        threading.Thread( target=read_socket, args=('socket',)).start()
+        threading.Thread(target=read_socket, daemon=True).start()
         logging.debug('Read Socket Thread Launched')
-        threading.Thread( target=read_communicator, args=('read_communicator',)).start()
+        threading.Thread(target=read_communicator, daemon=True).start()
         logging.debug('Read Device Thread Launched')
-        globals.JEEDOM_COM.send_change_immediate({'started' : 1});
+        globals.JEEDOM_COM.send_change_immediate({'started': 1})
     except KeyboardInterrupt:
         logging.error("KeyboardInterrupt, shutdown")
         shutdown()
 
-def read_communicator(name):
+
+def read_communicator():
     while 1:
         try:
             if not globals.COMMUNICATOR.is_alive():
@@ -81,46 +69,46 @@ def read_communicator(name):
         except queue.Empty:
             continue
         except Exception as e:
-            logging.error("Exception on enocean : "+str(e))
+            logging.error("Exception on enocean : %s", e)
             shutdown()
         time.sleep(0.02)
 
-def read_socket(name):
+
+def read_socket():
     while 1:
         try:
-            global JEEDOM_SOCKET_MESSAGE
             if not JEEDOM_SOCKET_MESSAGE.empty():
                 logging.debug("Message received in socket JEEDOM_SOCKET_MESSAGE")
                 message = JEEDOM_SOCKET_MESSAGE.get().decode('utf-8')
-                message =json.loads(message)
+                message = json.loads(message)
                 if message['apikey'] != _apikey:
-                    logging.error("Invalid apikey from socket : " + str(message))
+                    logging.error("Invalid apikey from socket : %s", message)
                     return
-                logging.debug('Received command from jeedom : '+str(message['cmd']))
+                logging.debug('Received command from jeedom : %s', message['cmd'])
                 if message['cmd'] == 'add':
-                    logging.debug('Add device : '+str(message['device']))
+                    logging.debug('Add device : %s', message['device'])
                     if 'id' in message['device'] and 'profils' in message['device']:
                         globals.KNOWN_DEVICES[message['device']['id']] = message['device']['profils']
                 elif message['cmd'] == 'remove':
-                    logging.debug('Remove device : '+str(message['device']))
+                    logging.debug('Remove device : %s', message['device'])
                     if 'id' in message['device']:
                         del globals.KNOWN_DEVICES[message['device']['id']]
                 elif message['cmd'] == 'learnin':
                     logging.debug('Enter in learn mode')
                     globals.LEARN_MODE = True
-                    globals.JEEDOM_COM.send_change_immediate({'learn_mode' : 1});
+                    globals.JEEDOM_COM.send_change_immediate({'learn_mode': 1})
                 elif message['cmd'] == 'learnout':
                     logging.debug('Leave learn mode')
                     globals.LEARN_MODE = False
-                    globals.JEEDOM_COM.send_change_immediate({'learn_mode' : 0});
+                    globals.JEEDOM_COM.send_change_immediate({'learn_mode': 0})
                 elif message['cmd'] == 'excludein':
                     logging.debug('Enter exclude mode')
                     globals.EXCLUDE_MODE = True
-                    globals.JEEDOM_COM.send_change_immediate({'exclude_mode' : 1});
+                    globals.JEEDOM_COM.send_change_immediate({'exclude_mode': 1})
                 elif message['cmd'] == 'excludeout':
                     logging.debug('Leave exclude mode')
                     globals.EXCLUDE_MODE = False
-                    globals.JEEDOM_COM.send_change_immediate({'exclude_mode' : 0});
+                    globals.JEEDOM_COM.send_change_immediate({'exclude_mode': 0})
                 elif message['cmd'] == 'send':
                     logging.debug('Send command')
                     PacketAnalyser.send_command(message)
@@ -141,16 +129,18 @@ def read_socket(name):
                         log.removeHandler(hdlr)
                     jeedom_utils.set_log_level(globals.LOG_LEVEL)
         except Exception as e:
-            logging.error("Exception on socket : %s" % str(e))
+            logging.error("Exception on socket : %s", e)
         time.sleep(0.02)
 
+
 def handler(signum=None, frame=None):
-    logging.debug("Signal %i caught, exiting..." % int(signum))
+    logging.debug("Signal %i caught, exiting...", signum)
     shutdown()
+
 
 def shutdown():
     logging.debug("Shutdown")
-    logging.debug("Removing PID file " + str(_pidfile))
+    logging.debug("Removing PID file %s", _pidfile)
     try:
         communicator.stop()
     except:
@@ -167,7 +157,6 @@ def shutdown():
     sys.stdout.flush()
     os._exit(0)
 
-# ----------------------------------------------------------------------------
 
 _log_level = "error"
 _socket_port = 55006
@@ -176,7 +165,7 @@ _pidfile = '/tmp/openenoceand.pid'
 _device = 'auto'
 _apikey = ''
 _callback = ''
-_cycle = 0.3;
+_cycle = 0.3
 
 parser = argparse.ArgumentParser(description='OpenEnocean Daemon for Jeedom plugin')
 parser.add_argument("--device", help="Device", type=str)
@@ -206,46 +195,46 @@ if args.cycle:
 jeedom_utils.set_log_level(_log_level)
 globals.LOG_LEVEL = _log_level
 logging.info('Start openenoceand')
-logging.info('Log level : '+str(_log_level))
-logging.info('Socket port : '+str(_socket_port))
-logging.info('Socket host : '+str(_socket_host))
-logging.info('PID file : '+str(_pidfile))
-logging.info('Apikey : '+str(_apikey))
-logging.info('Callback : '+str(_callback))
-logging.info('Cycle : '+str(_cycle))
+logging.info('Log level : %s', _log_level)
+logging.info('Socket port : %s', _socket_port)
+logging.info('Socket host : %s', _socket_host)
+logging.info('PID file : %s', _pidfile)
+logging.info('Callback : %s', _callback)
+logging.info('Cycle : %s', _cycle)
 
 if _device == 'auto':
-    _device = jeedom_utils.find_tty_usb('0403','6001','EnOcean')
-    logging.info('Find device : '+str(_device))
+    _device = jeedom_utils.find_tty_usb('0403', '6001', 'EnOcean')
 
 if _device is None:
-    _device = jeedom_utils.find_tty_usb('0403','6001','ftdi')
-    logging.info('Find device : '+str(_device))
+    _device = jeedom_utils.find_tty_usb('0403', '6001', 'ftdi')
 
 if _device is None:
     logging.error('No device found')
     shutdown()
-globals.DEVICE=_device
+else:
+    logging.info('Find device : %s', _device)
+
+globals.DEVICE = _device
 signal.signal(signal.SIGINT, handler)
 signal.signal(signal.SIGTERM, handler)
+
 import enocean.utils
 from enocean.communicators.serialcommunicator import SerialCommunicator
 from enocean.communicators.arubacommunicator import ArubaCommunicator
-from enocean.protocol.packet import RadioPacket, UTETeachIn
-from enocean.protocol.constants import PACKET, RORG
-from enocean import utils
+from enocean.protocol.constants import PACKET
 from enocean.protocol.packet import Packet
 from enocean import packet as PacketAnalyser
 from enocean import learn as learn
+
 try:
     jeedom_utils.write_pid(str(_pidfile))
-    globals.JEEDOM_COM = jeedom_com(apikey = _apikey,url = _callback,cycle=_cycle)
+    globals.JEEDOM_COM = jeedom_com(apikey=_apikey, url=_callback, cycle=_cycle)
     if not globals.JEEDOM_COM.test():
         logging.error('Network communication issues. Please fixe your Jeedom network configuration.')
         shutdown()
-    jeedom_socket = jeedom_socket(port=_socket_port,address=_socket_host)
+    jeedom_socket = jeedom_socket(port=_socket_port, address=_socket_host)
     listen()
 except Exception as e:
-    logging.error('Fatal error : '+str(e))
+    logging.error('Fatal error : %s', e)
     logging.debug(traceback.format_exc())
     shutdown()

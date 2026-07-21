@@ -20,16 +20,16 @@
 
 class openenocean extends eqLogic {
 	/*     * ***********************Methode static*************************** */
-	
+
 	public static function cron() {
-		$eqLogics = eqLogic::byType('openenocean');
-		foreach ($eqLogics as $eqLogic){
-			if ($eqLogic->getConfiguration('device') == 'a5-20-01'){
+		/** @var openenocean */
+		foreach (eqLogic::byType(__CLASS__, true) as $eqLogic) {
+			if ($eqLogic->getConfiguration('device') == 'a5-20-01') {
 				$eqLogic->computeTherm();
 			}
 		}
 	}
-	
+
 	public static function createFromDef($_def) {
 		event::add('jeedom::alert', array(
 			'level' => 'warning',
@@ -46,11 +46,11 @@ class openenocean extends eqLogic {
 			return false;
 		}
 		if (!isset($_def['rorg']) || !isset($_def['func']) || !isset($_def['type'])) {
-			log::add('openenocean', 'error', 'Information manquante pour ajouter l\'équipement : ' . print_r($_def, true));
+			log::add('openenocean', 'error', "Information manquante pour ajouter l'équipement : " . print_r($_def, true));
 			event::add('jeedom::alert', array(
 				'level' => 'danger',
 				'page' => 'openenocean',
-				'message' => __('Information manquante pour ajouter l\'équipement. Inclusion impossible', __FILE__),
+				'message' => __("Information manquante pour ajouter l'équipement. Inclusion impossible", __FILE__),
 			));
 			return false;
 		}
@@ -70,18 +70,17 @@ class openenocean extends eqLogic {
 		$eqLogic->setConfiguration('func', $_def['func']);
 		$eqLogic->setConfiguration('type', $_def['type']);
 		$model = $eqLogic->getModelListParam();
-		$default ='';
-		if (isset($device['configuration']['default'])){
-			$default =$device['configuration']['default'];
+		$default = '';
+		if (isset($device['configuration']['default'])) {
+			$default = $device['configuration']['default'];
 		}
 		if ($default != '') {
 			$eqLogic->setConfiguration('iconModel', $default);
-		}
-		else if (count($model) > 0) {
+		} else if (count($model) > 0) {
 			$eqLogic->setConfiguration('iconModel', array_keys($model[0])[0]);
 		}
 		$eqLogic->save();
-		
+
 		event::add('jeedom::alert', array(
 			'level' => 'warning',
 			'page' => 'openenocean',
@@ -89,7 +88,7 @@ class openenocean extends eqLogic {
 		));
 		return $eqLogic;
 	}
-	
+
 	public static function devicesParameters($_device = '') {
 		$return = array();
 		foreach (ls(dirname(__FILE__) . '/../config/devices', '*') as $dir) {
@@ -102,7 +101,6 @@ class openenocean extends eqLogic {
 				try {
 					$return += is_json(file_get_contents($path . '/' . $file), array());
 				} catch (Exception $e) {
-					
 				}
 			}
 		}
@@ -114,7 +112,7 @@ class openenocean extends eqLogic {
 		}
 		return $return;
 	}
-	
+
 	public static function deamon_info() {
 		$return = array();
 		$return['log'] = 'openenocean';
@@ -131,33 +129,17 @@ class openenocean extends eqLogic {
 		$port = config::byKey('port', 'openenocean');
 		if ($port != 'auto' && $port != 'aruba') {
 			$port = jeedom::getUsbMapping($port);
-			if (@!file_exists($port)) {
-				$return['launchable'] = 'nok';
-				$return['launchable_message'] = __('Le port n\'est pas configuré', __FILE__);
-			}
-			exec(system::getCmdSudo() . 'chmod 777 ' . $port . ' > /dev/null 2>&1');
+			if (is_string($port)) {
+				if (@!file_exists($port)) {
+					$return['launchable'] = 'nok';
+					$return['launchable_message'] = __("Le port n'est pas configuré", __FILE__);
+				}	
+				exec(system::getCmdSudo() . 'chmod 777 ' . $port . ' > /dev/null 2>&1');
+			}	
 		}
 		return $return;
 	}
-	
-	public static function dependancy_info() {
-		$return = array();
-		$return['progress_file'] = jeedom::getTmpFolder('openenocean') . '/dependance';
-		$return['state'] = 'ok';
-		if (exec(system::getCmdSudo() . system::get('cmd_check') . '-E "python3\-serial|python3\-request|python3\-pyudev" | wc -l') < 3) {
-			$return['state'] = 'nok';
-		}
-		if (exec(system::getCmdSudo() . 'pip3 list | grep -E "beautifulsoup4|enum-compat" | wc -l') < 2) {
-			$return['state'] = 'nok';
-		}
-		return $return;
-	}
-	
-	public static function dependancy_install() {
-		log::remove(__CLASS__ . '_update');
-		return array('script' => dirname(__FILE__) . '/../../resources/install_#stype#.sh ' . jeedom::getTmpFolder('openenocean') . '/dependance', 'log' => log::getPathToLog(__CLASS__ . '_update'));
-	}
-	
+
 	public static function deamon_start() {
 		self::deamon_stop();
 		$deamon_info = self::deamon_info();
@@ -169,7 +151,7 @@ class openenocean extends eqLogic {
 			$port = jeedom::getUsbMapping($port);
 		}
 		$openenocean_path = realpath(dirname(__FILE__) . '/../../resources/openenoceand');
-		$cmd = system::getCmdSudo().'/usr/bin/python3 ' . $openenocean_path . '/openenoceand.py';
+		$cmd = system::getCmdSudo() . system::getCmdPython3(__CLASS__) . "{$openenocean_path}/openenoceand.py";
 		$cmd .= ' --device ' . $port;
 		$cmd .= ' --loglevel ' . log::convertLogLevel(log::getLogLevel('openenocean'));
 		$cmd .= ' --socketport ' . config::byKey('socketport', 'openenocean');
@@ -199,9 +181,10 @@ class openenocean extends eqLogic {
 		config::save('include_mode', 0, 'openenocean');
 		return true;
 	}
-	
+
 	public static function sendIdToDeamon() {
-		foreach (self::byType('openenocean') as $eqLogic) {
+		/** @var openenocean */
+		foreach (self::byType(__CLASS__) as $eqLogic) {
 			$eqLogic->allowDevice();
 			$eqLogic->setStatus('lasRepeat0', 0);
 			$eqLogic->setStatus('lasRepeat1', 0);
@@ -209,7 +192,7 @@ class openenocean extends eqLogic {
 			usleep(300);
 		}
 	}
-	
+
 	public static function changeLogLive($_level) {
 		$value = array('apikey' => jeedom::getApiKey('openenocean'), 'cmd' => $_level);
 		$value = json_encode($value);
@@ -218,7 +201,7 @@ class openenocean extends eqLogic {
 		socket_write($socket, $value, strlen($value));
 		socket_close($socket);
 	}
-	
+
 	public static function deamon_stop() {
 		$pid_file = jeedom::getTmpFolder('openenocean') . '/deamon.pid';
 		if (file_exists($pid_file)) {
@@ -235,7 +218,7 @@ class openenocean extends eqLogic {
 		config::save('include_mode', 0, 'openenocean');
 		sleep(1);
 	}
-	
+
 	public static function excludedDevice($_logical_id = null) {
 		if ($_logical_id !== null && $_logical_id != 0) {
 			$eqLogic = eqlogic::byLogicalId($_logical_id, 'openenocean');
@@ -272,7 +255,7 @@ class openenocean extends eqLogic {
 		}
 		return;
 	}
-	
+
 	public static function generateEnOceanId() {
 		if (config::byKey('baseid', 'openenocean') == '') {
 			throw new Exception(__('Le base ID est vide, veuillez relance le démon', __FILE__));
@@ -298,7 +281,7 @@ class openenocean extends eqLogic {
 		}
 		throw new Exception(__('Impossible de trouver un ID libre (limite à 128 modules)', __FILE__));
 	}
-	
+
 	public static function changeIncludeState($_state, $_mode, $_type) {
 		if ($_type == '' || $_type == 0) {
 			if ($_mode == 1) {
@@ -322,14 +305,14 @@ class openenocean extends eqLogic {
 			}
 		}
 	}
-	
+
 	public static function sendSocket($_send) {
 		$socket = socket_create(AF_INET, SOCK_STREAM, 0);
 		socket_connect($socket, '127.0.0.1', config::byKey('socketport', 'openenocean'));
 		socket_write($socket, $_send, strlen($_send));
 		socket_close($socket);
 	}
-	
+
 	/*     * *********************Methode d'instance************************* */
 	public function setDeviceConfiguration($_params = '') {
 		$profile = array(
@@ -367,15 +350,15 @@ class openenocean extends eqLogic {
 		}
 		return;
 	}
-	
+
 	public function getDeviceConfiguration() {
 		return $this->getConfiguration('params');
 	}
-	
+
 	public function getImage() {
 		return 'plugins/openenocean/core/config/devices/' . $this->getConfiguration('iconModel') . '.jpg';
 	}
-	
+
 	public function changeRepeater($_type) {
 		$profile = array(
 			'func' => $this->getConfiguration('func'),
@@ -391,41 +374,41 @@ class openenocean extends eqLogic {
 		$this->save();
 		return;
 	}
-	
+
 	public function remMan($_code, $_type) {
 		$send = json_encode(array('apikey' => jeedom::getApiKey('openenocean'), 'cmd' => 'learn', 'dest' => $this->getLogicalId(), 'type' => 'remMan', 'subtype' => $_type, 'code' => $_code));
 		self::sendSocket($send);
 		return;
 	}
-	
+
 	public function remCom($_type) {
 		$send = json_encode(array('apikey' => jeedom::getApiKey('openenocean'), 'cmd' => 'learn', 'dest' => $this->getLogicalId(), 'type' => 'remMan', 'subtype' => $_type));
 		self::sendSocket($send);
 		return;
 	}
-	
+
 	public function computeTherm() {
-		log::add('openenocean','debug','Computing Therm for ' . $this->getHumanName());
-		$lastdata=$this->getCache('lastdata');
-		if (isset($lastdata['TMP'])){
-			log::add('openenocean','debug','Last data ' . $lastdata['TMP']);
-			$cmdSource = cmd::byId(str_replace('#','',$this->getConfiguration('sourceTemp','')));
-			if (!is_object($cmdSource)){
+		log::add('openenocean', 'debug', 'Computing Therm for ' . $this->getHumanName());
+		$lastdata = $this->getCache('lastdata');
+		if (isset($lastdata['TMP'])) {
+			log::add('openenocean', 'debug', 'Last data ' . $lastdata['TMP']);
+			$cmdSource = cmd::byId(str_replace('#', '', $this->getConfiguration('sourceTemp', '')));
+			if (!is_object($cmdSource)) {
 				$cmdSource = $this->getCmd(null, 'TMP::value');
 			}
-			if (!is_object($cmdSource)){
-				$sourceTemp =0;
+			if (!is_object($cmdSource)) {
+				$sourceTemp = 0;
 			} else {
 				$sourceTemp = $cmdSource->execCmd();
 			}
-			$sourceTemp =intval(255 -($sourceTemp*6.375));
+			$sourceTemp = intval(255 - ($sourceTemp * 6.375));
 			$lastdata['TMP'] = $sourceTemp;
 			$profile = array(
-			'func' => $this->getConfiguration('func'),
-			'rorg' => $this->getConfiguration('rorg'),
-			'type' => $this->getConfiguration('type'),
+				'func' => $this->getConfiguration('func'),
+				'rorg' => $this->getConfiguration('rorg'),
+				'type' => $this->getConfiguration('type'),
 			);
-			log::add('openenocean','debug','new data ' . $lastdata['TMP']);
+			log::add('openenocean', 'debug', 'new data ' . $lastdata['TMP']);
 			$value = json_encode(array('apikey' => jeedom::getApiKey('openenocean'), 'cmd' => 'send', 'dest' => $this->getLogicalId(), 'profile' => $profile, 'command' => $lastdata));
 			$socket = socket_create(AF_INET, SOCK_STREAM, 0);
 			socket_connect($socket, '127.0.0.1', config::byKey('socketport', 'openenocean'));
@@ -434,7 +417,7 @@ class openenocean extends eqLogic {
 		}
 		return;
 	}
-	
+
 	public function getModelListParam($_conf = '') {
 		if ($_conf == '') {
 			$_conf = $this->getConfiguration('device');
@@ -511,13 +494,13 @@ class openenocean extends eqLogic {
 		}
 		return [$modelList, $param, $remark, $hasrepeat, $hasremcom, $hasSourceTemp];
 	}
-	
+
 	public function preInsert() {
 		if ($this->getLogicalId() == '') {
 			$this->setLogicalId(self::generateEnOceanId());
 		}
 	}
-	
+
 	public function postSave() {
 		if ($this->getConfiguration('actionid') == '') {
 			$this->setConfiguration('actionid', self::generateEnOceanId());
@@ -530,11 +513,11 @@ class openenocean extends eqLogic {
 			$this->allowDevice();
 		}
 	}
-	
+
 	public function preRemove() {
 		$this->disallowDevice();
 	}
-	
+
 	public function allowDevice() {
 		$value = array('apikey' => jeedom::getApiKey('openenocean'), 'cmd' => 'add');
 		if ($this->getConfiguration('func') != '' && $this->getConfiguration('type') != '' && $this->getConfiguration('rorg') != '') {
@@ -566,7 +549,7 @@ class openenocean extends eqLogic {
 			socket_close($socket);
 		}
 	}
-	
+
 	public function disallowDevice() {
 		if ($this->getLogicalId() == '') {
 			return;
@@ -577,7 +560,7 @@ class openenocean extends eqLogic {
 		socket_write($socket, $value, strlen($value));
 		socket_close($socket);
 	}
-	
+
 	public function applyModuleConfiguration() {
 		$this->setConfiguration('applyDevice', $this->getConfiguration('device'));
 		$this->save();
@@ -610,7 +593,6 @@ class openenocean extends eqLogic {
 				}
 				sleep(1);
 			}
-			
 		}
 		sleep(2);
 		event::add('jeedom::alert', array(
@@ -619,16 +601,15 @@ class openenocean extends eqLogic {
 			'message' => '',
 		));
 	}
-	
 }
 
 class openenoceanCmd extends cmd {
 	/*     * *************************Attributs****************************** */
-	
+
 	/*     * ***********************Methode static*************************** */
-	
+
 	/*     * *********************Methode d'instance************************* */
-	
+
 	public function preSave() {
 		if ($this->getConfiguration('id') == '') {
 			$id = $this->getConfiguration('rorg') . $this->getConfiguration('func') . $this->getConfiguration('type');
@@ -638,7 +619,7 @@ class openenoceanCmd extends cmd {
 			$this->setConfiguration('id', $id);
 		}
 	}
-	
+
 	public function execute($_options = null) {
 		if ($this->getType() != 'action') {
 			return;
@@ -656,43 +637,43 @@ class openenoceanCmd extends cmd {
 			if (count($value) == 2) {
 				switch ($this->getSubType()) {
 					case 'slider':
-					if ($eqLogic->getConfiguration('invert100', 0) == 0) {
-						$data[trim($value[0])] = floatval(trim(str_replace('#slider#', $_options['slider'], $value[1])));
-					} else {
-						$data[trim($value[0])] = floatval(trim(str_replace('#slider#', 100 - $_options['slider'], $value[1])));
-					}
-					break;
+						if ($eqLogic->getConfiguration('invert100', 0) == 0) {
+							$data[trim($value[0])] = floatval(trim(str_replace('#slider#', $_options['slider'], $value[1])));
+						} else {
+							$data[trim($value[0])] = floatval(trim(str_replace('#slider#', 100 - $_options['slider'], $value[1])));
+						}
+						break;
 					case 'color':
-					$data[trim($value[0])] = trim(str_replace('#color#', $_options['color'], $value[1]));
-					break;
+						$data[trim($value[0])] = trim(str_replace('#color#', $_options['color'], $value[1]));
+						break;
 					case 'select':
-					$data[trim($value[0])] = trim(str_replace('#select#', $_options['select'], $value[1]));
-					break;
+						$data[trim($value[0])] = trim(str_replace('#select#', $_options['select'], $value[1]));
+						break;
 					case 'message':
-					$data[trim($value[0])] = trim(str_replace('#message#', $_options['message'], $value[1]));
-					break;
+						$data[trim($value[0])] = trim(str_replace('#message#', $_options['message'], $value[1]));
+						break;
 					default:
-					$data[trim($value[0])] = trim($value[1]);
+						$data[trim($value[0])] = trim($value[1]);
 				}
-				if ($eqLogic->getConfiguration('device') == 'a5-20-01'){
-					if (strpos($value[1],'sourceTemp') !== false) {
-						$cmdSource = cmd::byId(str_replace('#','',$eqLogic->getConfiguration('sourceTemp','')));
-						if (!is_object($cmdSource)){
+				if ($eqLogic->getConfiguration('device') == 'a5-20-01') {
+					if (strpos($value[1], 'sourceTemp') !== false) {
+						$cmdSource = cmd::byId(str_replace('#', '', $eqLogic->getConfiguration('sourceTemp', '')));
+						if (!is_object($cmdSource)) {
 							$cmdSource = $eqLogic->getCmd(null, 'TMP::value');
 						}
-						if (!is_object($cmdSource)){
-							$sourceTemp =0;
+						if (!is_object($cmdSource)) {
+							$sourceTemp = 0;
 						} else {
 							$sourceTemp = $cmdSource->execCmd();
 						}
-						$sourceTemp =intval(255 -($sourceTemp*6.375));
+						$sourceTemp = intval(255 - ($sourceTemp * 6.375));
 						$data[trim($value[0])] = trim(str_replace('#sourceTemp#', $sourceTemp, $value[1]));
 					}
 				}
-				$operation = explode('||',$data[trim($value[0])]);
+				$operation = explode('||', $data[trim($value[0])]);
 				if (count($operation) == 2) {
-					if (substr($operation[1],0,1) == '*') {
-						$data[trim($value[0])] = round($operation[0] * substr($operation[1],1));
+					if (substr($operation[1], 0, 1) == '*') {
+						$data[trim($value[0])] = round($operation[0] * substr($operation[1], 1));
 					}
 				}
 			}
@@ -721,14 +702,13 @@ class openenoceanCmd extends cmd {
 				}
 			}
 		}
-		if ($eqLogic->getConfiguration('device') == 'a5-20-01'){
-			$eqLogic->setCache('lastdata',$data);
+		if ($eqLogic->getConfiguration('device') == 'a5-20-01') {
+			$eqLogic->setCache('lastdata', $data);
 		}
 		$value = json_encode(array('apikey' => jeedom::getApiKey('openenocean'), 'cmd' => 'send', 'dest' => $eqLogic->getLogicalId(), 'profile' => $profile, 'command' => $data));
 		$socket = socket_create(AF_INET, SOCK_STREAM, 0);
 		socket_connect($socket, '127.0.0.1', config::byKey('socketport', 'openenocean'));
 		socket_write($socket, $value, strlen($value));
 		socket_close($socket);
-		
 	}
 }

@@ -68,7 +68,7 @@ class ventilairsec extends eqLogic {
 				ventilairsec::sendNotif($labelerror,__('Notifications VMI', __FILE__));
 			}
 			$update = $ventilairsec->getStatus('lastCommunication', date('Y-m-d H:i:s'));
-			if ($update < date('Y-m-d H:i:s', strtotime('-45 minutes' . date('Y-m-d H:i:s')))){
+			if (strtotime($update) < strtotime('-45 minutes')) {
 				ventilairsec::sendNotif(__('Pas de communication de la VMI depuis 45 minutes', __FILE__),__('Notifications VMI', __FILE__));
 			}
 		}
@@ -203,7 +203,7 @@ class ventilairsec extends eqLogic {
 			}
 		}
       		$update = $ventilairsec->getStatus('lastCommunication', date('Y-m-d H:i:s'));
-		if ($update < date('Y-m-d H:i:s', strtotime('-45 minutes' . date('Y-m-d H:i:s')))){
+		if (strtotime($update) < strtotime('-45 minutes')) {
         		log::add('ventilairsec','info','No communication');
             		$labelerror = __('Pannes : Pas de communication de la VMI depuis plus de 45 minutes', __FILE__);
 		}
@@ -335,7 +335,7 @@ class ventilairsec extends eqLogic {
 		return $datas;
 	}
 
-	public function rapportcsv() {
+	public static function rapportcsv() {
 		$captType=array('Température','Humidité','Co2');
 		$typeprof = array('MSC Assistant Ventilairsec' => array('Température'=>'TEMP::value','Humidité'=>'HUM::value'),
 							'A5_04_01' => array('Température'=>'TMP::value','Humidité'=>'HUM::value'),
@@ -574,14 +574,14 @@ class ventilairsec extends eqLogic {
 		$data .= 'HyrdroR : ' . $ventilairsec->getCmd('info','HYDROR::raw_value')->execCmd()."\n";
 		$versionElec = $ventilairsec->getCmd('info','VELEC::value')->execCmd();
 		$versionElec = substr(str_pad(dechex($versionElec),2,'0'),0,1) . '.' .substr(str_pad(dechex($versionElec),2,'0'),1,1) ;
-		$data .= utf8_decode('Version électronique : ') . $versionElec."\n";
+		$data .= mb_convert_encoding('Version électronique : ', 'ISO-8859-1', 'UTF-8') . $versionElec."\n";
 		$data .= 'Date installation : ' .$ventilairsec->getCmd('info','JINST::value')->execCmd() . '/' .$ventilairsec->getCmd('info','MINST::value')->execCmd().'/'.$ventilairsec->getCmd('info','AINST::value')->execCmd() ."\n";
 		$data .= 'Date ajout Jeedom : ' .$createDate."\n";
 		$data .= 'Compte Market : ' .config::byKey('market::username','core')."\n";
 		$data .= 'DNS : ' .config::byKey('jeedom::url','core')."\n";
 		$data .= "Date";
 		foreach ($arrayCmd as $name) {
-			$data .=';'.utf8_decode($name);
+			$data .=';'.mb_convert_encoding($name, 'ISO-8859-1', 'UTF-8');
 		}
 		$data .= "\n";
 		foreach (array_reverse($csvarray) as $key =>$value) {
@@ -1158,7 +1158,7 @@ class ventilairsec extends eqLogic {
 		return $return;
 	}
 
-	public function computeAgenda() {
+	public static function computeAgenda() {
 		$allEqLogics = eqLogic::byType('ventilairsec');
 		if (count($allEqLogics) >0) {
 			$ventilairsec = $allEqLogics[0];
@@ -1192,7 +1192,7 @@ class ventilairsec extends eqLogic {
 		foreach ($day as $key=> $value) {
 			$trame='';
 			$count = 0;
-			foreach($dictAgenda[$key] as $daycal){
+			foreach(($dictAgenda[$key] ?? []) as $daycal){
 				if ($count == 5) {
 					break;
 				}
@@ -1556,7 +1556,7 @@ class ventilairsec extends eqLogic {
 			return true;
 	}
 
-	public function setIntConfiguration($_params = '') {
+	public static function setIntConfiguration($_params = '') {
 		$params = json_decode($_params, true);
 		foreach ($params as $key => $value) {
 			if ($key =='boxName'){
@@ -1582,7 +1582,7 @@ class ventilairsec extends eqLogic {
 		return $output;
 	}
 
-	public function getIntConfiguration() {
+	public static function getIntConfiguration() {
 		$params =array();
 		$params['integratorUser'] = config::byKey('integratorUser','ventilairsec');
 		$params['integratorPassword'] = config::byKey('integratorPassword','ventilairsec');
@@ -1600,7 +1600,7 @@ class ventilairsec extends eqLogic {
 		return $params;
 	}
 
-	public function sendInt() {
+	public static function sendInt() {
 		repo_market::test();
 		$market = repo_market::getJsonRpc();
 		if (!$market->sendRequest('user::getAccesskey')) {

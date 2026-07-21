@@ -6,6 +6,7 @@
     "build-essential" : {}
   },
   "pip3" : {
+    "six" : {},
     "requests" : {},
     "setuptools" : {},
     "pyudev" : {},
