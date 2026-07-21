@@ -2,33 +2,20 @@
 from __future__ import annotations
 
 import logging
-import contextlib
 
-import voluptuous as vol
-from homeassistant.config import CONFIG_SCHEMA
-from homeassistant.const import CONF_PORT
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers.typing import ConfigType
 
 from .const import CONF_PORT as ENOCEAN_CONF_PORT, DOMAIN
 from .hub import EnOceanHub
 
 _LOGGER = logging.getLogger(__name__)
 
-CONFIG_SCHEMA = CONFIG_SCHEMA.extend(
-    {
-        DOMAIN: vol.Schema(
-            {
-                vol.Optional(ENOCEAN_CONF_PORT, default="/dev/ttyS2"): cv.string(),
-            },
-            extra=vol.ALLOW_EXTRA,
-        )
-    },
-    extra=vol.ALLOW_EXTRA,
-)
+CONFIG_SCHEMA = cv.empty_config_schema(DOMAIN)
 
 
-async def async_setup(hass: HomeAssistant, config: dict) -> bool:
+async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     hass.data.setdefault(DOMAIN, {})
 
     if DOMAIN in config:
