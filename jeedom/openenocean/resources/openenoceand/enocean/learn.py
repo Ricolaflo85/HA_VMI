@@ -1,13 +1,14 @@
-import globals
+from jeedom.openenocean.resources.openenoceand.enocean.devices import bs1, bs4p, response, rps
+import jeedom.openenocean.resources.openenoceand.globals as globals
 import json
 import time
-from enocean import utils
-from enocean.devices import vld, rps, bs4p, bs1,response
-from enocean.protocol.constants import PACKET, RORG
-from enocean.protocol.packet import RadioPacket, UTETeachIn
+from jeedom.openenocean.resources.openenoceand.enocean import utils
+from jeedom.openenocean.resources.openenoceand.enocean.devices import vld
+from jeedom.openenocean.resources.openenoceand.enocean.protocol.constants import PACKET, RORG
+from jeedom.openenocean.resources.openenoceand.enocean.protocol.packet import RadioPacket, UTETeachIn
 
 try:
-    from jeedom.jeedom import *
+    from jeedom.openenocean.resources.openenoceand.jeedom.jeedom import *
 except ImportError:
     print("Error: importing module from jeedom folder")
     sys.exit(1)

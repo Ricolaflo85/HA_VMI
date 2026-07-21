@@ -5,8 +5,8 @@ import logging
 from collections import OrderedDict
 from bs4 import BeautifulSoup
 
-import enocean.utils
-from enocean.protocol.constants import RORG
+import jeedom.openenocean.resources.openenoceand.enocean.utils
+from jeedom.openenocean.resources.openenoceand.enocean.protocol.constants import RORG
 
 
 class EEP(object):
@@ -41,9 +41,9 @@ class EEP(object):
         for telegram in self.soup.find_all('telegram'):
             for function in telegram.find_all('profiles'):
                 for type in function.find_all('profile'):
-                    rorg = enocean.utils.from_hex_string(telegram['rorg'])
-                    func = enocean.utils.from_hex_string(function['func'])
-                    typeidx = enocean.utils.from_hex_string(type['type'])
+                    rorg = jeedom.openenocean.resources.openenoceand.enocean.utils.from_hex_string(telegram['rorg'])
+                    func = jeedom.openenocean.resources.openenoceand.enocean.utils.from_hex_string(function['func'])
+                    typeidx = jeedom.openenocean.resources.openenoceand.enocean.utils.from_hex_string(type['type'])
                     if rorg in self.telegrams :
                         if func in self.telegrams[rorg]:
                             if typeidx in self.telegrams[rorg][func]:

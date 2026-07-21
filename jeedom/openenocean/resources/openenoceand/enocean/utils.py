@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 from __future__ import print_function, unicode_literals, division, absolute_import
-import globals
+import jeedom.openenocean.resources.openenoceand.globals as globals
 import logging
 import threading
 import time

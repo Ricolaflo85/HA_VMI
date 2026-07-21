@@ -3,11 +3,11 @@ from __future__ import print_function, unicode_literals, division, absolute_impo
 import logging
 from collections import OrderedDict
 
-import enocean.utils
-from enocean.protocol import crc8
-from enocean.protocol.eep import EEP
-from enocean.protocol.constants import PACKET, RORG, PARSE_RESULT, DB0,DB1, DB2, DB3, DB4, DB6
-import globals
+import jeedom.openenocean.resources.openenoceand.enocean.utils
+from jeedom.openenocean.resources.openenoceand.enocean.protocol import crc8
+from jeedom.openenocean.resources.openenoceand.enocean.protocol.eep import EEP
+from jeedom.openenocean.resources.openenoceand.enocean.protocol.constants import PACKET, RORG, PARSE_RESULT, DB0,DB1, DB2, DB3, DB4, DB6
+import jeedom.openenocean.resources.openenoceand.globals as globals
 
 class Packet(object):
     '''
@@ -60,13 +60,13 @@ class Packet(object):
         # Needs the redefinition of Packet.data -> Packet.message.
         # Packet.data would then only have the actual, documented data-bytes. Packet.message would contain the whole message.
         # See discussion in issue #14
-        return enocean.utils.to_bitarray(self.data[1:len(self.data) - 5], (len(self.data) - 6) * 8)
+        return jeedom.openenocean.resources.openenoceand.enocean.utils.to_bitarray(self.data[1:len(self.data) - 5], (len(self.data) - 6) * 8)
 
     @_bit_data.setter
     def _bit_data(self, value):
         # The same as getting the data, first and last 5 bits are ommitted, as they are defined...
         for byte in range(len(self.data) - 6):
-            self.data[byte+1] = enocean.utils.from_bitarray(value[byte*8:(byte+1)*8])
+            self.data[byte+1] = jeedom.openenocean.resources.openenoceand.enocean.utils.from_bitarray(value[byte*8:(byte+1)*8])
 
     # # COMMENTED OUT, AS NOTHING TOUCHES _bit_optional FOR NOW.
     # # Thus, this is also untested.
@@ -84,11 +84,11 @@ class Packet(object):
 
     @property
     def _bit_status(self):
-        return enocean.utils.to_bitarray(self.status)
+        return jeedom.openenocean.resources.openenoceand.enocean.utils.to_bitarray(self.status)
 
     @_bit_status.setter
     def _bit_status(self, value):
-        self.status = enocean.utils.from_bitarray(value)
+        self.status = jeedom.openenocean.resources.openenoceand.enocean.utils.from_bitarray(value)
 
     @staticmethod
     def parse_msg(buf, communicator=None):
@@ -249,7 +249,7 @@ class Packet(object):
 
         if self.rorg in [RORG.RPS, RORG.BS1, RORG.BS4]:
             # These message types should have repeater count in the last for bits of status.
-            self.repeater_count = enocean.utils.from_bitarray(self._bit_status[4:])
+            self.repeater_count = jeedom.openenocean.resources.openenoceand.enocean.utils.from_bitarray(self._bit_status[4:])
         return self.parsed
 
     def select_eep(self, rorg_func, rorg_type, direction=None, command=None):
@@ -258,10 +258,10 @@ class Packet(object):
         self.rorg_func = rorg_func
         self.rorg_type = rorg_type
         if self.rorg == RORG.MSC:
-            manufacturer = str(enocean.utils.dec2hex(self.rorg_manufacturer)).zfill(3)
-            rorg = str(enocean.utils.dec2hex(self.rorg)).zfill(2)
+            manufacturer = str(jeedom.openenocean.resources.openenoceand.enocean.utils.dec2hex(self.rorg_manufacturer)).zfill(3)
+            rorg = str(jeedom.openenocean.resources.openenoceand.enocean.utils.dec2hex(self.rorg)).zfill(2)
             logging.debug(str(rorg+manufacturer))
-            self._profile = self.eep.find_profile(self._bit_data, enocean.utils.from_hex_string(rorg+manufacturer), rorg_func, rorg_type, direction, command)
+            self._profile = self.eep.find_profile(self._bit_data, jeedom.openenocean.resources.openenoceand.enocean.utils.from_hex_string(rorg+manufacturer), rorg_func, rorg_type, direction, command)
         else:
             self._profile = self.eep.find_profile(self._bit_data, self.rorg, rorg_func, rorg_type, direction, command)
         return self._profile is not None
@@ -309,19 +309,19 @@ class RadioPacket(Packet):
 
     @property
     def sender_int(self):
-        return enocean.utils.combine_hex(self.sender)
+        return jeedom.openenocean.resources.openenoceand.enocean.utils.combine_hex(self.sender)
 
     @property
     def sender_hex(self):
-        return enocean.utils.to_hex_string(self.sender)
+        return jeedom.openenocean.resources.openenoceand.enocean.utils.to_hex_string(self.sender)
 
     @property
     def destination_int(self):
-        return enocean.utils.combine_hex(self.destination)
+        return jeedom.openenocean.resources.openenoceand.enocean.utils.combine_hex(self.destination)
 
     @property
     def destination_hex(self):
-        return enocean.utils.to_hex_string(self.destination)
+        return jeedom.openenocean.resources.openenoceand.enocean.utils.to_hex_string(self.destination)
 
     def parse(self):
         self.destination = self.optional[1:5]
@@ -334,21 +334,21 @@ class RadioPacket(Packet):
         # parse learn CMD, if applicable
         self.cmd = None
         if self.rorg == RORG.VLD:
-            if enocean.utils.to_hex_string(self.sender).replace(':','') in globals.KNOWN_DEVICES and globals.KNOWN_DEVICES[enocean.utils.to_hex_string(self.sender).replace(':','')][0]['rorg'] == 'd2' and globals.KNOWN_DEVICES[enocean.utils.to_hex_string(self.sender).replace(':','')][0]['func'] == '05':
+            if jeedom.openenocean.resources.openenoceand.enocean.utils.to_hex_string(self.sender).replace(':','') in globals.KNOWN_DEVICES and globals.KNOWN_DEVICES[jeedom.openenocean.resources.openenoceand.enocean.utils.to_hex_string(self.sender).replace(':','')][0]['rorg'] == 'd2' and globals.KNOWN_DEVICES[jeedom.openenocean.resources.openenoceand.enocean.utils.to_hex_string(self.sender).replace(':','')][0]['func'] == '05':
                 if len(self._bit_data) == 40:
-                    self.cmd =  enocean.utils.from_bitarray(self._bit_data[36:40])
+                    self.cmd =  jeedom.openenocean.resources.openenoceand.enocean.utils.from_bitarray(self._bit_data[36:40])
                 elif len(self._bit_data) == 32:
-                    self.cmd =  enocean.utils.from_bitarray(self._bit_data[28:32])
+                    self.cmd =  jeedom.openenocean.resources.openenoceand.enocean.utils.from_bitarray(self._bit_data[28:32])
                 else:
-                    self.cmd =  enocean.utils.from_bitarray(self._bit_data[4:8])
+                    self.cmd =  jeedom.openenocean.resources.openenoceand.enocean.utils.from_bitarray(self._bit_data[4:8])
             else:
-                self.cmd =  enocean.utils.from_bitarray(self._bit_data[4:8])
+                self.cmd =  jeedom.openenocean.resources.openenoceand.enocean.utils.from_bitarray(self._bit_data[4:8])
         if self.rorg == RORG.MSC:
-            self.rorg_manufacturer = enocean.utils.from_bitarray(enocean.utils.bitarray_sizing(self._bit_data[0:12],12))
+            self.rorg_manufacturer = jeedom.openenocean.resources.openenoceand.enocean.utils.from_bitarray(jeedom.openenocean.resources.openenoceand.enocean.utils.bitarray_sizing(self._bit_data[0:12],12))
             if str(self.rorg_manufacturer) == "d1079" or str(self.rorg_manufacturer) == "121":
-                self.cmd = enocean.utils.from_bitarray(self._bit_data[12:16])
+                self.cmd = jeedom.openenocean.resources.openenoceand.enocean.utils.from_bitarray(self._bit_data[12:16])
             else:
-                self.cmd = enocean.utils.from_bitarray(self._bit_data[16:24])
+                self.cmd = jeedom.openenocean.resources.openenoceand.enocean.utils.from_bitarray(self._bit_data[16:24])
         # parse learn bit and FUNC/TYPE, if applicable
         if self.rorg == RORG.BS1:
             self.learn = not self._bit_data[DB0.BIT_3]
@@ -358,9 +358,9 @@ class RadioPacket(Packet):
                 self.contains_eep = self._bit_data[DB0.BIT_7]
                 if self.contains_eep:
                     # Get rorg_func and rorg_type from an unidirectional learn packet
-                    self.rorg_func = enocean.utils.from_bitarray(self._bit_data[DB3.BIT_7:DB3.BIT_1])
-                    self.rorg_type = enocean.utils.from_bitarray(self._bit_data[DB3.BIT_1:DB2.BIT_2])
-                    self.rorg_manufacturer = enocean.utils.from_bitarray(self._bit_data[DB2.BIT_2:DB0.BIT_7])
+                    self.rorg_func = jeedom.openenocean.resources.openenoceand.enocean.utils.from_bitarray(self._bit_data[DB3.BIT_7:DB3.BIT_1])
+                    self.rorg_type = jeedom.openenocean.resources.openenoceand.enocean.utils.from_bitarray(self._bit_data[DB3.BIT_1:DB2.BIT_2])
+                    self.rorg_manufacturer = jeedom.openenocean.resources.openenoceand.enocean.utils.from_bitarray(self._bit_data[DB2.BIT_2:DB0.BIT_7])
                     logging.debug('learn received, EEP detected, RORG: 0x%02X, FUNC: 0x%02X, TYPE: 0x%02X, Manufacturer: 0x%02X' % (self.rorg, self.rorg_func, self.rorg_type, self.rorg_manufacturer))
         return super(RadioPacket, self).parse()
 
@@ -407,8 +407,8 @@ class UTETeachIn(RadioPacket):
         self.unidirectional = not self._bit_data[DB6.BIT_7]
         self.response_expected = not self._bit_data[DB6.BIT_6]
         self.cmdidentifier = not self._bit_data[DB6.BIT_3]
-        self.request_type = enocean.utils.from_bitarray(self._bit_data[DB6.BIT_5:DB6.BIT_3])
-        self.rorg_manufacturer = enocean.utils.from_bitarray(self._bit_data[DB3.BIT_2:DB2.BIT_7] + self._bit_data[DB4.BIT_7:DB3.BIT_7])
+        self.request_type = jeedom.openenocean.resources.openenoceand.enocean.utils.from_bitarray(self._bit_data[DB6.BIT_5:DB6.BIT_3])
+        self.rorg_manufacturer = jeedom.openenocean.resources.openenoceand.enocean.utils.from_bitarray(self._bit_data[DB3.BIT_2:DB2.BIT_7] + self._bit_data[DB4.BIT_7:DB3.BIT_7])
         self.channel = self.data[2]
         self.rorg_type = self.data[5]
         self.rorg_func = self.data[6]
@@ -428,7 +428,7 @@ class UTETeachIn(RadioPacket):
             DELETE_ACCEPTED = [True, False]
             response = DELETE_ACCEPTED
         data = [self.rorg] + \
-               [enocean.utils.from_bitarray([True, False] + response + [False, False, False, True])] + \
+               [jeedom.openenocean.resources.openenoceand.enocean.utils.from_bitarray([True, False] + response + [False, False, False, True])] + \
                self.data[2:8] + \
                sender_id + [0]
         # Always use 0x03 to indicate sending, attach sender ID, dBm, and security level
@@ -465,7 +465,7 @@ class RemoteCoPacket(Packet):
     remoteco = 0
     remoteco_data = []
     def parse(self):
-        self.remoteco = enocean.utils.combine_hex(self.data[0:2])
+        self.remoteco = jeedom.openenocean.resources.openenoceand.enocean.utils.combine_hex(self.data[0:2])
         self.remoteco_data = self.data[2:]
         return super(RemoteCoPacket, self).parse()
 

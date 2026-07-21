@@ -5,9 +5,9 @@ import socket
 import json
 import time
 import binascii
-import globals
+import jeedom.openenocean.resources.openenoceand.globals as globals
 
-from enocean.communicators.communicator import Communicator
+from jeedom.openenocean.resources.openenoceand.enocean.communicators.communicator import Communicator
 
 
 class ArubaCommunicator(Communicator):

@@ -3,7 +3,7 @@ from __future__ import print_function, unicode_literals, division, absolute_impo
 import logging
 import socket
 
-from enocean.communicators.communicator import Communicator
+from jeedom.openenocean.resources.openenoceand.enocean.communicators.communicator import Communicator
 
 
 class SocketCommunicator(Communicator):

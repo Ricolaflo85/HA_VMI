@@ -1,13 +1,14 @@
-import globals
+from jeedom.openenocean.resources.openenoceand.enocean.devices import bs1, bs4p, msc, rawhandler, remMan, response, rps
+import jeedom.openenocean.resources.openenoceand.globals as globals
 import json
 import time
 import logging
-from enocean import utils
-from enocean.devices import vld, rps, bs4p, bs1, response, rawhandler, remMan, msc
-from enocean.protocol.constants import PACKET, RORG
-from enocean.protocol.packet import RadioPacket
+from jeedom.openenocean.resources.openenoceand.enocean import utils
+from jeedom.openenocean.resources.openenoceand.enocean.devices import vld
+from jeedom.openenocean.resources.openenoceand.enocean.protocol.constants import PACKET, RORG
+from jeedom.openenocean.resources.openenoceand.enocean.protocol.packet import RadioPacket
 
-from jeedom.jeedom import jeedom_utils
+from jeedom.openenocean.resources.openenoceand.jeedom.jeedom import jeedom_utils
 
 
 def packet_get_eep(packet):

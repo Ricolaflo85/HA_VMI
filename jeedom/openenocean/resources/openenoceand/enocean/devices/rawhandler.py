@@ -1,9 +1,9 @@
 # -*- encoding: utf-8 -*-
 import logging
-from enocean import utils
-import globals
-from enocean.protocol.packet import RadioPacket
-from enocean.protocol.constants import PACKET, RORG
+from jeedom.openenocean.resources.openenoceand.enocean import utils
+import jeedom.openenocean.resources.openenoceand.globals as globals
+from jeedom.openenocean.resources.openenoceand.enocean.protocol.packet import RadioPacket
+from jeedom.openenocean.resources.openenoceand.enocean.protocol.constants import PACKET, RORG
 
 def send(rorg,raw,sender,destination):
     logging.debug('Sending Raw message ' + str(raw))

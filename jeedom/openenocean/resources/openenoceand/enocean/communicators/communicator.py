@@ -1,15 +1,15 @@
 # -*- encoding: utf-8 -*-
 from __future__ import print_function, unicode_literals, division, absolute_import
 import logging
-import globals
+import jeedom.openenocean.resources.openenoceand.globals as globals
 import time
 import threading
 try:
     import Queue as queue
 except ImportError:
     import queue
-from enocean.protocol.packet import Packet
-from enocean.protocol.constants import PACKET, PARSE_RESULT, RETURN_CODE
+from jeedom.openenocean.resources.openenoceand.enocean.protocol.packet import Packet
+from jeedom.openenocean.resources.openenoceand.enocean.protocol.constants import PACKET, PARSE_RESULT, RETURN_CODE
 
 
 class Communicator(threading.Thread):

@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 import logging
-from enocean import utils
-import globals
+from jeedom.openenocean.resources.openenoceand.enocean import utils
+import jeedom.openenocean.resources.openenoceand.globals as globals
 
 def parse(packet):
     action = {}

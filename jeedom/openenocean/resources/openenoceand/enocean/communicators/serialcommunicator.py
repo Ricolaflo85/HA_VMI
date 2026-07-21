@@ -4,7 +4,7 @@ import logging
 import serial
 import time
 
-from enocean.communicators.communicator import Communicator
+from jeedom.openenocean.resources.openenoceand.enocean.communicators.communicator import Communicator
 
 
 class SerialCommunicator(Communicator):

@@ -12,7 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
-import globals
+import jeedom.openenocean.resources.openenoceand.globals as globals
 import logging
 import sys
 import os
@@ -24,7 +24,7 @@ import traceback
 import json
 import queue
 
-from jeedom.jeedom import jeedom_socket, jeedom_utils, jeedom_com, JEEDOM_SOCKET_MESSAGE
+from jeedom.openenocean.resources.openenoceand.jeedom.jeedom import jeedom_socket, jeedom_utils, jeedom_com, JEEDOM_SOCKET_MESSAGE
 
 # PARAMETERS
 communicator = None
@@ -42,8 +42,8 @@ def listen():
         logging.error("No base id from enocean key, shutdown")
         shutdown()
 
-    logging.info('The Base ID of your controler is %s.', enocean.utils.to_hex_string(globals.COMMUNICATOR.base_id).replace(':', ''))
-    globals.JEEDOM_COM.send_change_immediate({'baseid': str(enocean.utils.to_hex_string(globals.COMMUNICATOR.base_id)).replace(':', '')})
+    logging.info('The Base ID of your controler is %s.', jeedom.openenocean.resources.openenoceand.enocean.utils.to_hex_string(globals.COMMUNICATOR.base_id).replace(':', ''))
+    globals.JEEDOM_COM.send_change_immediate({'baseid': str(jeedom.openenocean.resources.openenoceand.enocean.utils.to_hex_string(globals.COMMUNICATOR.base_id)).replace(':', '')})
     globals.WAITING_RES = False
     packet = Packet(PACKET.COMMON_COMMAND, [0x03])
     globals.COMMUNICATOR.send(packet)
@@ -218,13 +218,13 @@ globals.DEVICE = _device
 signal.signal(signal.SIGINT, handler)
 signal.signal(signal.SIGTERM, handler)
 
-import enocean.utils
-from enocean.communicators.serialcommunicator import SerialCommunicator
-from enocean.communicators.arubacommunicator import ArubaCommunicator
-from enocean.protocol.constants import PACKET
-from enocean.protocol.packet import Packet
-from enocean import packet as PacketAnalyser
-from enocean import learn as learn
+import jeedom.openenocean.resources.openenoceand.enocean.utils
+from jeedom.openenocean.resources.openenoceand.enocean.communicators.serialcommunicator import SerialCommunicator
+from jeedom.openenocean.resources.openenoceand.enocean.communicators.arubacommunicator import ArubaCommunicator
+from jeedom.openenocean.resources.openenoceand.enocean.protocol.constants import PACKET
+from jeedom.openenocean.resources.openenoceand.enocean.protocol.packet import Packet
+from jeedom.openenocean.resources.openenoceand.enocean import packet as PacketAnalyser
+from jeedom.openenocean.resources.openenoceand.enocean import learn as learn
 
 try:
     jeedom_utils.write_pid(str(_pidfile))

@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 import logging
-import globals
+import jeedom.openenocean.resources.openenoceand.globals as globals
 
 
 def parse(action, packet):
